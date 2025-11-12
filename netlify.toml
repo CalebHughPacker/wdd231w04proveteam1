@@ -1,0 +1,7 @@
+[dev]
+  port = 8888
+  publish = "public"
+  environment = { CFBD_API_KEY = "your_actual_api_key_here" }
+
+[build]
+  publish = "public"

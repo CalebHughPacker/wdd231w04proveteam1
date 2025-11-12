@@ -23,37 +23,20 @@
       <form id="game-search-form">
         <div class="form-group">
           <label for="team">Team:</label>
-          <input type="text" id="team" name="team" placeholder="e.g., Alabama" required />
+          <input type="text" id="team" name="team" placeholder="e.g., Alabama" />
         </div>
-
         <div class="form-group">
           <label for="conference">Conference:</label>
           <select id="conference" name="conference">
             <option value="">All Conferences</option>
-            <!-- Dynamically populated from /conferences API -->
-            <!-- Example static options -->
-            <option value="SEC">SEC</option>
-            <option value="Big Ten">Big Ten</option>
-            <option value="ACC">ACC</option>
-            <option value="Big 12">Big 12</option>
-            <option value="American">Pac-12</option>
-            <option value="MWC">Pac-12</option>
-            <option value="Sun Belt">Pac-12</option>
-            <option value="MAC">Pac-12</option>
-            <option value="CUSA">Pac-12</option>
-            <option value="Pac-12">Pac-12</option>
-            <option value="Intependents">Pac-12</option>
           </select>
         </div>
-
         <div class="form-group">
           <label for="week">Week:</label>
           <select id="week" name="week">
             <option value="">Current Week</option>
-            <!-- Weeks 1–15 dynamically populated -->
           </select>
         </div>
-
         <button type="submit" id="search-btn">Search</button>
       </form>
     </section>
@@ -61,7 +44,6 @@
     <section id="results-section" class="results-section hidden">
       <h2>Games</h2>
       <div id="games-container" class="games-container">
-        <!-- API Results go here -->
       </div>
     </section>
 
@@ -80,7 +62,5 @@
       </a>
     </p>
   </footer>
-
-  <script src="script.js"></script>
 </body>
 </html>
