@@ -1,5 +1,3 @@
-import fetch from "node-fetch";
-
 export async function handler() {
   try {
     const res = await fetch("https://api.collegefootballdata.com/teams/fbs", {
