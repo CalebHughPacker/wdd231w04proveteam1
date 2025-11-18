@@ -1,6 +1,9 @@
 export async function handler(event) {
   const { year = 2025, week, team, conference } = event.queryStringParameters || {};
 
+  console.log("CFBD_API_KEY exists?", !!process.env.CFBD_API_KEY);
+  console.log("Node version:", process.version);
+
   const params = new URLSearchParams({ year, division: "fbs", seasonType: "regular" });
   if (week) params.append("week", week);
   if (team) params.append("team", team);
