@@ -1,10 +1,10 @@
-window.addEventListener("DOMContentLoaded", async () => {
+// ================== INITIAL PAGE SETUP ==================
+document.addEventListener("DOMContentLoaded", async () => {
   const year = 2025;
   const weekSelect = document.getElementById("week");
-  const form = document.getElementById("game-search-form");
   const confSelect = document.getElementById("conference");
 
-  // 🔹 Populate conferences
+  // Populate conferences dropdown
   const conferences = ["SEC", "Big Ten", "ACC", "Big 12", "Pac-12",
                        "American", "MWC", "MAC", "CUSA", "Sun Belt", "Independents"];
   conferences.forEach(c => {
@@ -14,29 +14,42 @@ window.addEventListener("DOMContentLoaded", async () => {
     confSelect.appendChild(opt);
   });
 
-  // 🔹 Populate week dropdown 1–15
-  for (let i = 1; i <= 15; i++) {
+  // Populate week dropdown 1–15
+  for (let i = 2; i <= 15; i++) {
     const opt = document.createElement("option");
     opt.value = i;
     opt.textContent = `Week ${i}`;
     weekSelect.appendChild(opt);
   }
 
-  const currentWeek = 1;
-  weekSelect.value = currentWeek;
+  // Restore form state if it exists
+  const saved = loadFormState();
+  if (saved) {
+    weekSelect.value = saved.week || 1;
+  }
 
-  await loadGames(year, currentWeek);
+  // Auto load games once dropdowns are ready
+  const currentWeek = weekSelect.value || 1;
+  await loadGames(year, currentWeek, saved?.team || "", saved?.conference || "");
 
-  form.addEventListener("submit", async e => {
+  // Listen for user submit
+  document.getElementById("game-search-form").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const selectedWeek = weekSelect.value || currentWeek;
-    const team = document.getElementById("team").value.trim();
-    const conference = confSelect.value;
-
-    await loadGames(year, selectedWeek, team, conference);
+    saveFormState();
+    await loadGames(
+      year,
+      weekSelect.value,
+      document.getElementById("team").value.trim(),
+      confSelect.value
+    );
   });
+
+  // Save form changes on input
+  document.getElementById("game-search-form").addEventListener("input", saveFormState);
 });
 
+
+// ================== LOAD GAMES ==================
 async function loadGames(year, week, team = "", conference = "") {
   const container = document.getElementById("games-container");
   container.innerHTML = "<p>Loading games…</p>";
@@ -51,7 +64,7 @@ async function loadGames(year, week, team = "", conference = "") {
 
     const games = await res.json();
 
-    if (!games || games.length === 0) {
+    if (!games.length) {
       container.innerHTML = "<p>No games found for that search.</p>";
       document.getElementById("results-section").classList.remove("hidden");
       return;
@@ -71,5 +84,24 @@ async function loadGames(year, week, team = "", conference = "") {
   } catch (err) {
     console.error("loadGames error:", err);
     container.innerHTML = "<p>Failed to load games.</p>";
+  }
+}
+
+
+// ================== LOCAL STORAGE ==================
+function saveFormState() {
+  const state = {
+    team: document.getElementById("team").value.trim(),
+    conference: document.getElementById("conference").value,
+    week: document.getElementById("week").value
+  };
+  localStorage.setItem("gameFormState", JSON.stringify(state));
+}
+
+function loadFormState() {
+  try {
+    return JSON.parse(localStorage.getItem("gameFormState"));
+  } catch {
+    return null;
   }
 }

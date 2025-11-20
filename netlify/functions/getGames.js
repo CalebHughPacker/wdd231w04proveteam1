@@ -1,9 +1,6 @@
 export async function handler(event) {
   const { year = 2025, week, team, conference } = event.queryStringParameters || {};
 
-  console.log("CFBD_API_KEY exists?", !!process.env.CFBD_API_KEY);
-  console.log("Node version:", process.version);
-
   const params = new URLSearchParams({ year, division: "fbs", seasonType: "regular" });
   if (week) params.append("week", week);
   if (team) params.append("team", team);
@@ -17,7 +14,6 @@ export async function handler(event) {
 
     const data = await res.json();
 
-    // 🔹 Standard conference mapping
     const confMap = {
       "SEC": "SEC",
       "Big Ten": "Big Ten",
@@ -34,45 +30,33 @@ export async function handler(event) {
       "Independents": "Independents"
     };
 
-    const simplified = data.map(g => {
-      const homeConfRaw = g.homeConference ?? g.home_conference;
-      const awayConfRaw = g.awayConference ?? g.away_conference;
+    const simplified = data.map(g => ({
+      id: g.id,
+      home_team: g.homeTeam ?? g.home_team,
+      away_team: g.awayTeam ?? g.away_team,
+      home_points: g.homePoints ?? g.home_points,
+      away_points: g.awayPoints ?? g.away_points,
+      start_date: g.startDate ?? g.start_date,
+      home_conference: confMap[g.homeConference ?? g.home_conference] ?? "Unknown",
+      away_conference: confMap[g.awayConference ?? g.away_conference] ?? "Unknown"
+    }));
 
-      const home_conf = confMap[homeConfRaw] ?? homeConfRaw ?? "Unknown";
-      const away_conf = confMap[awayConfRaw] ?? awayConfRaw ?? "Unknown";
+    const FBS_CONFERENCES = new Set([
+      "SEC", "Big Ten", "ACC", "Big 12", "Pac-12",
+      "American", "MWC", "MAC", "CUSA", "Sun Belt", "Independents"
+    ]);
 
-      return {
-        id: g.id,
-        home_team: g.homeTeam ?? g.home_team,
-        away_team: g.awayTeam ?? g.away_team,
-        home_points: g.homePoints ?? g.home_points,
-        away_points: g.awayPoints ?? g.away_points,
-        start_date: g.startDate ?? g.start_date,
-        venue: g.venue ?? null,
-        home_conference: home_conf,
-        away_conference: away_conf
-      };
-    });
+    const onlyD1 = simplified.filter(g =>
+      FBS_CONFERENCES.has(g.home_conference) || FBS_CONFERENCES.has(g.away_conference)
+    );
 
-// Keep games where at least ONE team is D1/FBS
-const FBS_CONFERENCES = new Set([
-  "SEC", "Big Ten", "ACC", "Big 12", "Pac-12",
-  "American", "MWC", "MAC", "CUSA", "Sun Belt", "Independents"
-]);
+    const filtered = conference
+      ? onlyD1.filter(g => g.home_conference === conference || g.away_conference === conference)
+      : onlyD1;
 
-const onlyD1 = simplified.filter(g => 
-  FBS_CONFERENCES.has(g.home_conference) || FBS_CONFERENCES.has(g.away_conference)
-);
-
-// Optional conference filtering
-const filtered = conference
-  ? onlyD1.filter(g => g.home_conference === conference || g.away_conference === conference)
-  : onlyD1;
-
-return { statusCode: 200, body: JSON.stringify(filtered) };
+    return { statusCode: 200, body: JSON.stringify(filtered) };
 
   } catch (err) {
-    console.error("getGames error:", err);
     return { statusCode: 500, body: JSON.stringify({ error: "Failed to fetch games" }) };
   }
 }
