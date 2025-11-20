@@ -54,12 +54,23 @@ export async function handler(event) {
       };
     });
 
-    // 🔹 Optional backend conference filtering
-    const filtered = conference
-      ? simplified.filter(g => g.home_conference === conference || g.away_conference === conference)
-      : simplified;
+// Keep games where at least ONE team is D1/FBS
+const FBS_CONFERENCES = new Set([
+  "SEC", "Big Ten", "ACC", "Big 12", "Pac-12",
+  "American", "MWC", "MAC", "CUSA", "Sun Belt", "Independents"
+]);
 
-    return { statusCode: 200, body: JSON.stringify(filtered) };
+const onlyD1 = simplified.filter(g => 
+  FBS_CONFERENCES.has(g.home_conference) || FBS_CONFERENCES.has(g.away_conference)
+);
+
+// Optional conference filtering
+const filtered = conference
+  ? onlyD1.filter(g => g.home_conference === conference || g.away_conference === conference)
+  : onlyD1;
+
+return { statusCode: 200, body: JSON.stringify(filtered) };
+
   } catch (err) {
     console.error("getGames error:", err);
     return { statusCode: 500, body: JSON.stringify({ error: "Failed to fetch games" }) };
