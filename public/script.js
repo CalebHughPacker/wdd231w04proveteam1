@@ -25,7 +25,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Restore form state if it exists
   const saved = loadFormState();
   if (saved) {
-    weekSelect.value = saved.week || 1;
+    document.getElementById("team").value = saved.team || "";
+    document.getElementById("conference").value = saved.conference || "";
+    document.getElementById("week").value = saved.week || 1;
   }
 
   // Auto load games once dropdowns are ready
