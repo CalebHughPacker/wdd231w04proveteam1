@@ -23,21 +23,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Restore form state if it exists
+  // Restore form state (URL > LocalStorage > Defaults)
+  const urlState = getURLParams();
   const saved = loadFormState();
-  if (saved) {
-    document.getElementById("team").value = saved.team || "";
-    document.getElementById("conference").value = saved.conference || "";
-    document.getElementById("week").value = saved.week || 1;
-  }
+
+  document.getElementById("team").value =
+    urlState.team || saved?.team || "";
+
+  document.getElementById("conference").value =
+    urlState.conference || saved?.conference || "";
+
+  document.getElementById("week").value =
+    urlState.week || saved?.week || 1;
+
 
   // Auto load games once dropdowns are ready
   const currentWeek = weekSelect.value || 1;
-  await loadGames(year, currentWeek, saved?.team || "", saved?.conference || "");
+  await loadGames(
+    year,
+    document.getElementById("week").value,
+    document.getElementById("team").value.trim(),
+    document.getElementById("conference").value
+  );
 
   // Listen for user submit
   document.getElementById("game-search-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     saveFormState();
+    updateURL();
     await loadGames(
       year,
       weekSelect.value,
@@ -106,4 +119,27 @@ function loadFormState() {
   } catch {
     return null;
   }
+}
+
+function getURLParams() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    team: params.get("team") || "",
+    conference: params.get("conference") || "",
+    week: params.get("week") || ""
+  };
+}
+
+function updateURL() {
+  const params = new URLSearchParams();
+  const team = document.getElementById("team").value.trim();
+  const conference = document.getElementById("conference").value;
+  const week = document.getElementById("week").value;
+
+  if (team) params.set("team", team);
+  if (conference) params.set("conference", conference);
+  if (week) params.set("week", week);
+
+  const newURL = `${window.location.pathname}?${params.toString()}`;
+  history.replaceState({}, "", newURL);
 }
