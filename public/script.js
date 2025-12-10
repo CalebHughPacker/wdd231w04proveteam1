@@ -1,5 +1,6 @@
 // ================== INITIAL PAGE SETUP ==================
 document.addEventListener("DOMContentLoaded", async () => {
+  await loadAllTeams();
   const year = 2025;
   const weekSelect = document.getElementById("week");
   const confSelect = document.getElementById("conference");
@@ -45,22 +46,64 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("team").value.trim(),
     document.getElementById("conference").value
   );
+});
 
-  // Listen for user submit
-  document.getElementById("game-search-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    saveFormState();
-    updateURL();
-    await loadGames(
-      year,
-      weekSelect.value,
-      document.getElementById("team").value.trim(),
-      confSelect.value
-    );
-  });
+let ALL_TEAMS = [];
 
-  // Save form changes on input
-  document.getElementById("game-search-form").addEventListener("input", saveFormState);
+async function loadAllTeams() {
+  try {
+    const res = await fetch("/.netlify/functions/getTeams");
+    ALL_TEAMS = await res.json();
+  } catch (err) {
+    console.error("Failed to load team list", err);
+  }
+}
+
+document.getElementById("game-search-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  saveFormState();
+  updateURL();
+
+  const teamName = document.getElementById("team").value.trim();
+  const week = document.getElementById("week").value;
+  const conference = document.getElementById("conference").value;
+
+  // Load games first
+  await loadGames(2025, week, teamName, conference);
+
+  // Then update header color
+  // Then update header color from local list
+// Then update header color from local list
+if (teamName && ALL_TEAMS.length > 0) {
+  const found = ALL_TEAMS.find(
+    t => t.school.toLowerCase().includes(teamName.toLowerCase())
+  );
+
+  if (found) {
+    const primaryColor = found.color?.replace("#", "") || "333333";
+    const altColor    = found.alt_color?.replace("#", "") || "ffffff";
+    const secondaryColor = found.alternateColor?.replace("#", "") || "ffffff";
+
+
+    const isLight = (hex) => {
+      const c = parseInt(hex, 16);
+      const r = (c >> 16) & 255;
+      const g = (c >> 8) & 255;
+      const b = c & 255;
+      const luminance = 0.2126*r + 0.7152*g + 0.0722*b;
+      return luminance > 180;
+    };
+
+    // You forgot THIS
+    const textColor = isLight(primaryColor) ? "000000" : "ffffff";
+
+    const root = document.documentElement;
+
+    root.style.setProperty("--team-primary", `#${primaryColor}`);
+    root.style.setProperty("--team-contrast", `#${secondaryColor}`);
+  }
+}
 });
 
 

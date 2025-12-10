@@ -1,3 +1,5 @@
+// getGames.js
+
 export async function handler(event) {
   const { year = 2025, week, team, conference } = event.queryStringParameters || {};
 

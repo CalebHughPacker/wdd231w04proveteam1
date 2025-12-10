@@ -11,6 +11,8 @@
   --radius: 12px;
   --transition: 0.2s ease-in-out;
   --header-height: 70px;
+  --team-primary: white;
+  --team-contrast: var(--text);
 }
 
 * {
@@ -31,8 +33,8 @@ body {
 /* ---------- Header ---------- */
 .header {
   height: var(--header-height);
-  background: var(--text);
-  color: white;
+  background: var(--team-primary);
+  color: var(--team-contrast);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -48,8 +50,9 @@ body {
 
 .nav button {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3); /* optional: replace later */
+  color: var(--team-primary);
+  border-color: var(--team-primary);
   padding: 0.4rem 1rem;
   border-radius: var(--radius);
   cursor: pointer;
@@ -58,8 +61,8 @@ body {
 }
 
 .nav button:hover {
-  background: white;
-  color: var(--text);
+  background: var(--team-contrast);
+  color: var(--team-primary);
 }
 
 /* ---------- Main Layout ---------- */
@@ -121,10 +124,10 @@ select:focus {
 }
 
 button#search-btn {
-  background: var(--primary);
-  color: white;
+  background: var(--team-primary);
+  color: var(--team-contrast, var(--text)); /* use team contrast if set, else --text */
+  border: 1px solid var(--team-contrast, #000); /* border matches text */
   padding: 0.75rem;
-  border: none;
   border-radius: var(--radius);
   font-weight: 600;
   cursor: pointer;
@@ -132,9 +135,10 @@ button#search-btn {
 }
 
 button#search-btn:hover {
-  background: var(--primary-dark);
-  transform: translateY(-2px);
+  background: var(--team-contrast, var(--text)); /* hover swaps background */
+  color: var(--team-primary);                   /* text becomes primary */
 }
+
 
 /* ---------- Results Section ---------- */
 .results-section,
@@ -148,7 +152,7 @@ button#search-btn:hover {
 .results-section h2,
 .prediction-section h2 {
   margin-bottom: 1rem;
-  border-left: 5px solid var(--primary);
+  border-left: 5px solid var(--team-primary);
   padding-left: 0.75rem;
   font-size: 1.4rem;
 }

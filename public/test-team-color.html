@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Test — Team Header Color</title>
+<style>
+  :root{
+    --team-primary: #0b162a;
+    --team-contrast: #fff;
+    --header-height: 70px;
+    --radius: 10px;
+    --transition: 0.2s;
+  }
+
+  body{
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Inter", sans-serif;
+    margin: 1rem;
+    background:#f3f6fb;
+  }
+
+  .header{
+    height: var(--header-height);
+    background: var(--team-primary);
+    color: var(--team-contrast);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 1rem;
+    border-radius: var(--radius);
+    transition: background var(--transition), color var(--transition);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  }
+
+  .nav button{
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.25);
+    color: var(--team-contrast);
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    cursor:pointer;
+  }
+
+  .nav button:hover{
+    background: var(--team-contrast);
+    color: var(--team-primary);
+  }
+
+  main{ margin-top:1rem; }
+
+  .controls { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
+  .controls input{ padding:.4rem; border-radius:6px; border:1px solid #ccc; }
+  .log{ margin-top:1rem; background:#fff; padding:.75rem; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,.04); font-family:monospace; white-space:pre-wrap; max-height:180px; overflow:auto }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">D1-Data</div>
+  <nav class="nav">
+    <button id="favorites-btn">Favorites</button>
+    <button id="about-btn">About</button>
+  </nav>
+</header>
+
+<main>
+  <h2>Team Color Test</h2>
+
+  <div class="controls">
+    <input id="team-input" placeholder="e.g., Alabama" />
+    <button id="fetch-team">Fetch real team (CFB API)</button>
+    <button id="mock-team">Use sample team</button>
+    <button id="inspect-vars">Show CSS vars in console</button>
+  </div>
+
+  <div class="log" id="log">Console output will appear here.</div>
+</main>
+
+<script>
+/*
+  Self-contained tester:
+  - Clicking "Use sample team" updates CSS vars immediately (no network).
+  - Clicking "Fetch real team" attempts a fetch to the CollegeFootballData API.
+  - "Show CSS vars" prints current CSS vars (helpful to confirm setProperty worked).
+*/
+
+const logEl = document.getElementById('log');
+function log(...args){
+  console.log(...args);
+  logEl.textContent += '\\n' + args.map(a=> (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function setTeamColors(primaryHex, contrastHex){
+  // Accept either '#rrggbb' or 'rrggbb'
+  const norm = v => v ? (v.startsWith('#') ? v : '#' + v) : null;
+  const p = norm(primaryHex) || '#0b162a';
+  const c = norm(contrastHex) || '#ffffff';
+
+  document.documentElement.style.setProperty('--team-primary', p);
+  document.documentElement.style.setProperty('--team-contrast', c);
+
+  log(`--team-primary set to ${p}`, `--team-contrast set to ${c}`);
+}
+
+document.getElementById('mock-team').addEventListener('click', () => {
+  // Example: Ohio State red / white
+  const sample = { name: "Ohio State", color: "bb0000", alt_color: "ffffff" };
+  setTeamColors(sample.color, sample.alt_color);
+});
+
+// Try to fetch a real team from CollegeFootballData API.
+// Note: this requires the API to permit CORS from your origin. If it fails,
+// the console/log will show the error (likely a CORS or network problem).
+document.getElementById('fetch-team').addEventListener('click', async () => {
+  const teamName = document.getElementById('team-input').value.trim();
+  if (!teamName) {
+    log('Enter a team name first (e.g., Alabama)');
+    return;
+  }
+
+  log('Fetching team:', teamName);
+  try {
+    const url = `https://api.collegefootballdata.com/teams?search=${encodeURIComponent(teamName)}`;
+    const res = await fetch(url); // <- may fail due to CORS on some hosts
+    log('HTTP status', res.status);
+    if (!res.ok) {
+      log('Fetch failed: HTTP', res.status);
+      return;
+    }
+    const arr = await res.json();
+    log('API returned count:', arr.length);
+    if (!arr.length) {
+      log('No team found');
+      return;
+    }
+    const team = arr[0];
+    log('Team object:', team);
+    // API returns hex *without* leading '#', e.g., "bb0000"
+    setTeamColors(team.color, team.alt_color);
+  } catch (err) {
+    log('Fetch error:', err && err.message ? err.message : err);
+  }
+});
+
+document.getElementById('inspect-vars').addEventListener('click', () => {
+  const s = getComputedStyle(document.documentElement);
+  const p = s.getPropertyValue('--team-primary').trim();
+  const c = s.getPropertyValue('--team-contrast').trim();
+  log('Computed vars -> --team-primary:', p, ' --team-contrast:', c);
+});
+
+// Initial log
+log('Tester loaded. Click "Use sample team" to simulate, or "Fetch real team" to call the API.');
+</script>
+
+</body>
+</html>
