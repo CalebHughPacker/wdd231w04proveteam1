@@ -11,8 +11,8 @@
   --radius: 12px;
   --transition: 0.2s ease-in-out;
   --header-height: 70px;
-  --team-primary: white;
-  --team-contrast: var(--text);
+  --team-primary: black;
+  --team-contrast: white;
 }
 
 * {
@@ -135,6 +135,7 @@ button#search-btn {
 button#search-btn:hover {
   background: var(--team-contrast, var(--text)); /* hover swaps background */
   color: var(--team-primary);                   /* text becomes primary */
+  border: 1px solid black;
 }
 
 
@@ -168,10 +169,6 @@ button#search-btn:hover {
   padding: 1rem;
   box-shadow: var(--shadow);
   transition: var(--transition);
-}
-
-.game-card:hover {
-  transform: scale(1.22);
 }
 
 .game-card h3 {
