@@ -1,12 +1,16 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  await loadAllTeams();
+  // 1. Define variables first
   const year = 2025;
   const weekSelect = document.getElementById("week");
   const confSelect = document.getElementById("conference");
 
-
+  // 2. Populate Conferences
   const conferences = ["SEC", "Big Ten", "ACC", "Big 12", "Pac-12",
                        "American", "MWC", "MAC", "CUSA", "Sun Belt", "Independents"];
+  
+  // Clear any default HTML options to ensure a clean slate
+  confSelect.innerHTML = '<option value="">All Conferences</option>';
+  
   conferences.forEach(c => {
     const opt = document.createElement("option");
     opt.value = c;
@@ -14,14 +18,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     confSelect.appendChild(opt);
   });
 
-  for (let i = 2; i <= 15; i++) {
+  // 3. Populate Weeks (Fixing the issue)
+  // Clear the hardcoded "Week 1" from HTML so we can build the list perfectly in order
+  weekSelect.innerHTML = "";
+
+  // Add "All Weeks" first
+  const allWeeksOpt = document.createElement("option");
+  allWeeksOpt.value = "all";
+  allWeeksOpt.textContent = "All Weeks";
+  weekSelect.appendChild(allWeeksOpt);
+
+  // Add Weeks 1 through 15 loop
+  for (let i = 1; i <= 15; i++) {
     const opt = document.createElement("option");
     opt.value = i;
     opt.textContent = `Week ${i}`;
     weekSelect.appendChild(opt);
   }
 
-
+  // 4. Load Saved State / URL Params
   const urlState = getURLParams();
   const saved = loadFormState();
 
@@ -31,12 +46,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("conference").value =
     urlState.conference || saved?.conference || "";
 
+  // Set the week value (defaults to 1 if nothing saved)
   document.getElementById("week").value =
     urlState.week || saved?.week || 1;
 
-
-
-  const currentWeek = weekSelect.value || 1;
+  // 5. NOW fetch the data (Teams and Games)
+  // We do this last so the UI is already built and visible
+  await loadAllTeams();
+  
   await loadGames(
     year,
     document.getElementById("week").value,
@@ -106,12 +123,24 @@ async function loadGames(year, week, team = "", conference = "") {
   container.innerHTML = "<p>Loading games…</p>";
 
   try {
-    let url = `/.netlify/functions/getGames?year=${year}&week=${week}`;
+    // Start with the base URL including the year
+    let url = `/.netlify/functions/getGames?year=${year}`;
+
+    // ONLY add the week parameter if it is NOT "all"
+    if (week && week !== "all") {
+      url += `&week=${week}`;
+    }
+
+    // Append team and conference as before
     if (team) url += `&team=${encodeURIComponent(team)}`;
     if (conference) url += `&conference=${encodeURIComponent(conference)}`;
 
+    // Debugging: Log the URL to ensure 'week' is missing when 'all' is selected
+    console.log("Fetching URL:", url);
+
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
 
     const games = await res.json();  
 
