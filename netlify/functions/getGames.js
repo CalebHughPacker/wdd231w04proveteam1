@@ -16,21 +16,20 @@ export async function handler(event) {
 
     const data = await res.json();
 
-    const confMap = {
-      "SEC": "SEC",
-      "Big Ten": "Big Ten",
-      "ACC": "ACC",
-      "Big 12": "Big 12",
-      "B12": "Big 12",
-      "Pac-12": "Pac-12",
-      "PAC": "Pac-12",
-      "American": "American",
-      "MWC": "MWC",
-      "MAC": "MAC",
-      "CUSA": "CUSA",
-      "Sun Belt": "Sun Belt",
-      "Independents": "Independents"
-    };
+  const confMap = {
+    "SEC": "SEC",
+    "Big Ten": "Big Ten",
+    "ACC": "ACC",
+    "Big 12": "Big 12",
+    "Pac-12": "Pac-12",
+    "American Athletic": "American",
+    "Mountain West": "MWC",
+    "Mid-American": "MAC",
+    "Conference USA": "CUSA",
+    "Sun Belt": "Sun Belt",
+    "FBS Independents": "Independents"
+  };
+
 
     const simplified = data.map(g => ({
       id: g.id,

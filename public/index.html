@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>D1-Data | College Football Analytics</title>
+  <title>College Football Scores & Schedule</title>
   <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="favicon.ico" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico?v=2" />
   <script src="script.js" defer></script>
 </head>
 <body>
   <header class="header">
-    <div class="logo">D1-Data</div>
+    <div class="logo">Scores</div>
     <nav class="nav">
       <button id="favorites-btn">Favorites</button>
       <button id="about-btn">About</button>
@@ -30,7 +30,7 @@
           <label for="conference">Conference:</label>
           <select id="conference" name="conference">
             <option value="">All Conferences</option>
-            <!-- Dynamically populated by script.js -->
+
           </select>
         </div>
 
@@ -50,13 +50,6 @@
       <h2>Games</h2>
       <div id="games-container" class="games-container">
         <!-- API Results go here -->
-      </div>
-    </section>
-
-    <section id="prediction-section" class="prediction-section hidden">
-      <h2>Predicted Winner</h2>
-      <div id="prediction-output">
-        <!-- ELO-based prediction data will appear here -->
       </div>
     </section>
   </main>
