@@ -139,6 +139,8 @@ button#search-btn:hover {
 }
 
 
+
+
 /* ---------- Results Section ---------- */
 .results-section,
 .prediction-section {
@@ -171,8 +173,12 @@ button#search-btn:hover {
   transition: var(--transition);
 }
 
+.game-card:hover {
+  transform: scale(1.02)
+}
+
 .game-card h3 {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   margin-bottom: 0.5rem;
 }
 
